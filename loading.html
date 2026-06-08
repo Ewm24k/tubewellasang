@@ -247,7 +247,7 @@
     <div class="video-wrapper">
       <video
         id="loading-video"
-        src=""
+        src="https://raw.githubusercontent.com/Ewm24k/tubewellasang/main/assets/drill-animation.mp4"
         autoplay
         muted
         loop
@@ -287,14 +287,10 @@
   </div>
 
   <script>
-    // After 4 seconds: hide loading page, reveal main page
+    // After 4 seconds: redirect to main page
     setTimeout(() => {
-      document.getElementById('loading-page').style.display = 'none';
-      const main = document.getElementById('main-page');
-      main.style.transition = 'none';
-      main.style.opacity = '1';
-      main.style.visibility = 'visible';
-    }, 4600); // slight buffer after CSS animation
+      window.location.href = 'index.html';
+    }, 4600);
   </script>
 
 </body>
