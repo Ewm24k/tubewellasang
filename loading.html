@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TubeWell Asang — Loading</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── RESET & BASE ─────────────────────────────────── */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --black:        #000000;
+      --charcoal:     #080808;
+      --neon-white:   #e8f4f8;
+      --neon-cyan:    #00e5ff;
+      --neon-glow:    rgba(0, 229, 255, 0.35);
+      --text-dim:     rgba(232, 244, 248, 0.55);
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: var(--black);
+    }
+
+    /* ── LOADING PAGE WRAPPER ─────────────────────────── */
+    #loading-page {
+      position: fixed;
+      inset: 0;
+      background: var(--black);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      /* fade out after 4s */
+      animation: pageExit 0.6s ease-in-out 4s forwards;
+    }
+
+    /* ── VIDEO CONTAINER ──────────────────────────────── */
+    .video-wrapper {
+      position: relative;
+      width: min(420px, 80vw);
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Neon ring glow behind video */
+    .video-wrapper::before {
+      content: '';
+      position: absolute;
+      inset: -18px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--neon-glow) 0%, transparent 70%);
+      animation: ringPulse 2.4s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    #loading-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 12px;
+      /* subtle vignette overlay applied via mix-blend */
+      mix-blend-mode: lighten;
+    }
+
+    /* Placeholder shown when no video src is set */
+    .video-placeholder {
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 229, 255, 0.18);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      background: rgba(0, 229, 255, 0.03);
+      color: var(--text-dim);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-align: center;
+      padding: 24px;
+      pointer-events: none;
+    }
+
+    .video-placeholder svg {
+      opacity: 0.35;
+    }
+
+    /* hide placeholder once video loads */
+    #loading-video:not([src=""]) + .video-placeholder,
+    #loading-video[src]:not([src=""]) + .video-placeholder {
+      display: none;
+    }
+
+    /* ── WAIT TEXT ────────────────────────────────────── */
+    .wait-block {
+      margin-top: 48px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .wait-label {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: clamp(1rem, 3.5vw, 1.45rem);
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--neon-white);
+      text-shadow:
+        0 0 8px rgba(232, 244, 248, 0.9),
+        0 0 22px rgba(0, 229, 255, 0.6),
+        0 0 55px rgba(0, 229, 255, 0.3);
+      animation: textFlicker 3s linear infinite;
+    }
+
+    /* animated trailing dots */
+    .dots::after {
+      content: '';
+      animation: dotsAnim 1.5s steps(4, end) infinite;
+    }
+
+    /* thin progress bar */
+    .progress-bar {
+      width: min(280px, 60vw);
+      height: 2px;
+      background: rgba(232, 244, 248, 0.08);
+      border-radius: 99px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar::after {
+      content: '';
+      position: absolute;
+      inset-block: 0;
+      left: -40%;
+      width: 40%;
+      background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+      border-radius: 99px;
+      animation: barSweep 1.6s ease-in-out infinite;
+      box-shadow: 0 0 12px var(--neon-cyan), 0 0 28px var(--neon-glow);
+    }
+
+    /* brand sub-label */
+    .brand-sub {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: clamp(0.58rem, 1.8vw, 0.72rem);
+      letter-spacing: 0.35em;
+      color: var(--text-dim);
+      margin-top: 6px;
+    }
+
+    /* ── KEYFRAMES ────────────────────────────────────── */
+    @keyframes ringPulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50%       { opacity: 1;   transform: scale(1.04); }
+    }
+
+    @keyframes textFlicker {
+      0%,  19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        opacity: 1;
+        text-shadow:
+          0 0 8px rgba(232,244,248,0.9),
+          0 0 22px rgba(0,229,255,0.6),
+          0 0 55px rgba(0,229,255,0.3);
+      }
+      20%, 24%, 55% {
+        opacity: 0.85;
+        text-shadow: none;
+      }
+    }
+
+    @keyframes dotsAnim {
+      0%   { content: ''; }
+      25%  { content: '.'; }
+      50%  { content: '..'; }
+      75%  { content: '...'; }
+      100% { content: ''; }
+    }
+
+    @keyframes barSweep {
+      0%   { left: -40%; }
+      100% { left: 110%; }
+    }
+
+    @keyframes pageExit {
+      0%   { opacity: 1; visibility: visible; }
+      100% { opacity: 0; visibility: hidden; pointer-events: none; }
+    }
+
+    /* ── MAIN PAGE (initially hidden) ────────────────── */
+    #main-page {
+      position: fixed;
+      inset: 0;
+      background: var(--charcoal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.6s ease-in-out 4s, visibility 0s linear 4s;
+      /* placeholder content */
+      color: var(--text-dim);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+    }
+
+    #main-page.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* triggered by JS after delay */
+    body.loaded #main-page {
+      opacity: 1;
+      visibility: visible;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════
+       LOADING PAGE
+  ═══════════════════════════════════════ -->
+  <div id="loading-page">
+
+    <!-- VIDEO — replace src="" with your .mp4 path, e.g. src="assets/drill-animation.mp4" -->
+    <div class="video-wrapper">
+      <video
+        id="loading-video"
+        src=""
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+        aria-hidden="true"
+      ></video>
+
+      <!-- Placeholder visible until you add a real video src -->
+      <div class="video-placeholder">
+        <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="1" width="54" height="54" rx="7" stroke="#00e5ff" stroke-width="1.2" stroke-dasharray="6 4"/>
+          <path d="M20 18L40 28L20 38V18Z" fill="#00e5ff" opacity="0.4"/>
+          <circle cx="28" cy="28" r="14" stroke="#00e5ff" stroke-width="1" opacity="0.2"/>
+        </svg>
+        <span>[ VIDEO PLACEHOLDER ]</span>
+        <span>Letakkan fail .mp4 anda</span>
+        <span style="color:rgba(0,229,255,0.4)">src="assets/nama-video.mp4"</span>
+      </div>
+    </div>
+
+    <!-- WAIT TEXT -->
+    <div class="wait-block">
+      <div class="wait-label">Please Wait<span class="dots"></span></div>
+      <div class="progress-bar"></div>
+      <div class="brand-sub">TUBEWELL ASANG · RZD GLOBAL ENTERPRISE</div>
+    </div>
+
+  </div><!-- /loading-page -->
+
+  <!-- ══════════════════════════════════════
+       MAIN PAGE — will be built separately
+  ═══════════════════════════════════════ -->
+  <div id="main-page">
+    <!-- MAIN PAGE CONTENT GOES HERE -->
+    <span>[ MAIN PAGE — COMING NEXT ]</span>
+  </div>
+
+  <script>
+    // After 4 seconds: hide loading page, reveal main page
+    setTimeout(() => {
+      document.getElementById('loading-page').style.display = 'none';
+      const main = document.getElementById('main-page');
+      main.style.transition = 'none';
+      main.style.opacity = '1';
+      main.style.visibility = 'visible';
+    }, 4600); // slight buffer after CSS animation
+  </script>
+
+</body>
+</html>
